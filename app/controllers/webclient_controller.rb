@@ -15,7 +15,7 @@ class WebclientController < ActionController::Base
 
 
   # Client Variablen
-  @Identity
+  @identity
   @salt_masterkey
   @pubkey_user
   @privkey_user_enc
@@ -34,9 +34,39 @@ class WebclientController < ActionController::Base
 
   def register
 
-    # Erhalte PubKey vom Server
+    # View auslesen identity + passwort
 
-    response =RestClient.create 'http://fh.thomassennekamp.de/server/user' , {:params => {:identity => 'TestWEB',:salt_masterkey => 12345679876543,:pubkey_user => 123456765432,:privkey_user_enc => 123456765432 }}
+    # Salt-Masterkey erzeugen
+
+
+    # Masterkey erzeugen
+
+    @masterkey = PBKDF2.new do |p|
+      p.password = @password
+      p.salt = @salt_masterkey
+      p.iterations = 10000
+    end
+
+
+    # RSA Keys erzeugen
+
+    rsakeys = OpenSSL::PKey::RSA.new(2048)
+    @privkey_user = rsakeys.to_pem
+    @pubkey_user  = rsakeys.public_key
+
+    # privkey verschlüsseln
+    cipher = OpenSSL::@cipher::Cipher.new("AES-128-CBC")
+    @privkey_user_enc = @privkey_user.export(cipher, @masterkey)
+
+    # Daten an Server übertragen
+    response = RestClient.create 'http://fh.thomassennekamp.de/server/user' ,
+                                 {:params =>
+                                      {:identity          => @identity
+                                      ,:salt_masterkey    => @salt_masterkey
+                                      ,:pubkey_user       => @pubkey_user
+                                      ,:privkey_user_enc  => @privkey_user_enc
+                                      }
+                                 }
 
 
 
@@ -61,9 +91,7 @@ class WebclientController < ActionController::Base
                     p.iterations = 10000
                   end
 
-
-    #   Entschlüsslung privkey_user_enc
-
+    #Entschlüsslung privkey_user_enc
 
       @KEY = @masterkey
       @ALGORITHM = 'AES-128-ECB'
@@ -97,7 +125,7 @@ class WebclientController < ActionController::Base
     # Aufruf zur Entschlüssung
     @privkey_user = AesEncryptDecrypt.encryption(@privkey_user_enc)
 
-    end
+
   end
 
 
