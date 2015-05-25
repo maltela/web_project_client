@@ -1,0 +1,16 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Username:</strong>
+  <%= @rest_web_client.username %>
+</p>
+
+<p>
+  <strong>Password:</strong>
+  <%= @rest_web_client.password %>
+</p>
+
+
+
+<%= link_to 'Edit', edit_rest_web_client_path(@rest_web_client) %> |
+<%= link_to 'Back', rest_web_clients_path %>

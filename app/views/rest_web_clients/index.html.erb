@@ -1,0 +1,27 @@
+<h1>Listing rest_web_clients</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Password</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @rest_web_clients.each do |rest_web_client| %>
+      <tr>
+        <td><%= rest_web_client.username %></td>
+        <td><%= rest_web_client.password %></td>
+        <td><%= link_to 'Show', rest_web_client %></td>
+        <td><%= link_to 'Edit', edit_rest_web_client_path(rest_web_client) %></td>
+        <td><%= link_to 'Destroy', rest_web_client, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Rest web client', new_rest_web_client_path %>
