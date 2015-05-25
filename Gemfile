@@ -39,4 +39,4 @@ gem 'spring',        group: :development
 # gem 'debugger', group: [:development, :test]
 
 gem 'rest-client'
-gem 'pbkdf2'
+gem 'pbkdf2', :git => 'git://github.com/emerose/pbkdf2-ruby.git'

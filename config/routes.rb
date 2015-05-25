@@ -1,4 +1,16 @@
 Rails.application.routes.draw do
+
+  resources :rest_web_clients
+
+  resources :webclients
+
+
+  get '/', to: 'rest_web_clients#index'
+
+  get 'register', to: 'webclient#registration'
+
+  get 'login', to: 'webclient#login'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
