@@ -85,13 +85,7 @@ class RestWebClientsController < ApplicationController
                                }
     )
 
-    respond_to do |format|
-    if response.code.to_s==500
-      {
-          format.html {render :new }
-      }
 
-    end
 
     logger.debug(response.to_s + " CODE : " + response.code.to_s)
     #logger.debug(response2.to_s + " CODE : " + response2.code.to_s)
