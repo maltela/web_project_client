@@ -21,6 +21,7 @@ class RestWebClientsController < ApplicationController
   def show
   end
 
+
   # GET /rest_web_clients/new
   def new
     @rest_web_client = RestWebClient.new
@@ -64,7 +65,10 @@ class RestWebClientsController < ApplicationController
     aes.key = masterkey.bin_string
     crypt = aes.update(privkey_user) + aes.final
 
+    # Für internen  Client-Test
     privkey_user_enc =  (Base64.encode64(crypt))
+    pubkey_user_test =  (Base64.encode64(pubkey_user))
+    salt_masterkey_test = (Base64.encode64(salt_masterkey))
 
     # Daten an Server übertragen
    # response = RestClient.post('http://fh.thomassennekamp.de/server/user' ,
@@ -79,10 +83,11 @@ class RestWebClientsController < ApplicationController
     response = RestClient.post('http://webengproject.herokuapp.com' ,
                                {
                                    :identity          => @rest_web_client.username,
-                                   :salt_masterkey    => salt_masterkey,
                                    :privkey_user_enc  => privkey_user_enc,
-                                   :pubkey_user       => pubkey_user
+                                   :pubkey_user       => pubkey_user_test,
+                                   :salt_masterkey    => salt_masterkey_test
                                }
+                             # Reihenfolge nicht relevant
     )
 
 
@@ -100,6 +105,54 @@ class RestWebClientsController < ApplicationController
     end
   end
 
+
+  def login
+    @rest_web_client = RestWebClient.new
+  end
+  def loginAction
+
+    @rest_web_client = RestWebClient.new(rest_web_client_params)
+
+    identity = @rest_web_client.username
+    password = @rest_web_client.password
+
+    logger.debug("Parameter: "+identity)
+    # Erhalte PubKey vom Server
+    response = RestClient.get 'http://webengproject.herokuapp.com/'+identity
+    #response = RestClient.get 'http://fh.thomassennekamp.de/server/User', {:params => {:identity => 'thomas06'}}
+    response.code
+
+    logger.debug("Code : "+response.code.to_s)
+    # RestClient::NotImplemented: 501 Not Implemen
+    # Pubkey User auslesen
+
+    pubkey_user = response['pubkey_user']
+    salt_masterkey = response['salt_masterkey']
+    privkey_user_enc = response['privkey_user_enc']
+    # Masterkey genieren mit PDKDF default: sha 256
+
+
+    logger.debug("Pubkey:"+pubkey_user+" Salt_Masterkey:"+salt_masterkey+" Privkey"+privkey_user_enc)
+    masterkey = PBKDF2.new do |p|
+      p.password = password
+      p.salt = salt_masterkey
+      p.iterations = 10000
+    end
+
+
+    #Entschlüsslung privkey_user_enc
+
+    cipher = OpenSSL::Cipher.new('AES-128-ECB')
+    cipher.decrypt()
+    cipher.key = masterkey.bin_string
+    tempkey = Base64.decode64(privkey_user_enc)
+
+    redirect_to @rest_web_client, notice: 'Rest web client  successfully .'
+  end
+
+
+  def receive
+  end
   # PATCH/PUT /rest_web_clients/1
   # PATCH/PUT /rest_web_clients/1.json
   def update
@@ -112,6 +165,17 @@ class RestWebClientsController < ApplicationController
         format.json { render json: @rest_web_client.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+
+  def showUser
+
+    response = RestClient.get 'http://fh.thomassennekamp.de/server/AllUsers'
+    @output=JSON.parse(response)
+    logger.debug(response.to_str)
+
+
+
   end
 
   # DELETE /rest_web_clients/1

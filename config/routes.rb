@@ -7,9 +7,17 @@ Rails.application.routes.draw do
 
   get '/', to: 'rest_web_clients#index'
 
-  get 'register', to: 'webclient#registration'
+  get 'register', to: 'rest_web_clients#registration'
 
-  get 'login', to: 'webclient#login'
+  get 'login', to: 'rest_web_clients#login'
+
+  post 'loginAction', to: 'rest_web_clients#loginAction'
+
+  get 'send', to: 'rest_web_clients#send'
+
+  get 'receive', to: 'rest_web_clients#receive'
+
+  get 'showUser', to: 'rest_web_clients#showUser'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

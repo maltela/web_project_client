@@ -22,6 +22,26 @@
   </tbody>
 </table>
 
+
+<table>
+  <thead>
+  <tr>
+    <th>Funktions-Aufrufe</th>
+  </tr>
+  </thead>
+  <tbody>
+
+  <tr>
+    <td><%= link_to 'User anzeigen',            controller: "rest_web_clients", action: "showUser"  %></td>
+    <td><%= link_to "User registrieren",        controller: "rest_web_clients", action: "new"       %></td>
+    <td><%= link_to 'User einloggen',           controller: "rest_web_clients", action: "login"     %></td>
+    <td><%= link_to 'Nachricht verschicken',    controller: "rest_web_clients", action: "send"      %></td>
+    <td><%= link_to 'Nachrichten empfangen',    controller: "rest_web_clients", action: "receive"   %></td>
+  </tr>
+
+  </tbody>
+</table>
+
 <br>
 
 <%= link_to 'New Rest web client', new_rest_web_client_path %>
