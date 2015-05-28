@@ -24,7 +24,7 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
 group :development do
   gem 'spring'
-  gem 'sqlite3'
+#  gem 'sqlite3'
 end
 
 #heroku
@@ -49,8 +49,3 @@ end
 
 gem 'rest-client'
 gem 'pbkdf2', :git => 'git://github.com/emerose/pbkdf2-ruby.git'
-#heroku
-  group :production do
-    gem 'pg'
-    gem 'rails_12factor'
-  end
