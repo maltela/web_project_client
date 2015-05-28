@@ -1,6 +1,6 @@
-<h1>Editing rest_web_client</h1>
+<h1>Login Web-Client</h1>
 
-<%= form_for @rest_web_client, url: {action: "loginAction"} do |f| %>
+<%= form_for @rest_web_client, url: {action: "sendMessage"} do |f| %>
     <% if @rest_web_client.errors.any? %>
         <div id="error_explanation">
           <h2><%= pluralize(@rest_web_client.errors.count, "error") %> prohibited this rest_web_client from being saved:</h2>

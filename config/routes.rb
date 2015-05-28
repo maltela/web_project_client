@@ -13,7 +13,7 @@ Rails.application.routes.draw do
 
   post 'loginAction', to: 'rest_web_clients#loginAction'
 
-  get 'sendMessage', to: 'rest_web_clients#sendMessage'
+  post 'sendMessage', to: 'rest_web_clients#sendMessage'
 
   get 'receive', to: 'rest_web_clients#receive'
 

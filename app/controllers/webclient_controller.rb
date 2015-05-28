@@ -166,7 +166,7 @@ class WebclientController < ActionController::Base
       # SHA 256 digitale Signature bilden
 
       data = identity+cipher+iv+key_recipient_enc
-      sig_recipient = OpenSSL::HMAC.hexdigest('sha256', data, privkey_user)
+      sig_recipient = OpenSSL::HMAC.hexdigest('sha256', privkey_user,data)
 
       # Zeit ermitteln
       time = RestClient.get 'http://fh.thomassennekamp.de/server/Time'
@@ -177,13 +177,14 @@ class WebclientController < ActionController::Base
 
 
     response=RestClient.post('http://fh.thomassennekamp.de/server/Message',
-                             {:inner_umschlag  => {:identity=>identity,
-                                                   :cipher=> cipher, :iv=> iv,
-                                                   :key_recipient_enc=> key_recipient_enc,
-                                                   :sig_recipient => sig_recipient},
-                              :timestamp => time,
-                              :recipient => recipient,
-                              :sig_service => sig_service
+                             {:inner_umschlag  => {:identity              => identity,
+                                                   :cipher                => cipher,
+                                                   :iv                    => iv,
+                                                   :key_recipient_enc     => key_recipient_enc,
+                                                   :sig_recipient         => sig_recipient},
+                              :timestamp    => time,
+                              :recipient    => recipient,
+                              :sig_service  => sig_service
                              })
 
     response.code
