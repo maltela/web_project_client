@@ -9,11 +9,13 @@ Rails.application.routes.draw do
 
   get 'register', to: 'rest_web_clients#registration'
 
-  get 'login', to: 'rest_web_clients#login'
+  get 'send', to: 'rest_web_clients#login'
 
   post 'loginAction', to: 'rest_web_clients#loginAction'
 
-  post 'sendMessage', to: 'rest_web_clients#sendMessage'
+  get 'sendMessage', to: 'rest_web_clients#sendMessage'
+
+  post 'sendMessageAction', to: 'rest_web_clients#sendMessageAction'
 
   get 'receive', to: 'rest_web_clients#receive'
 

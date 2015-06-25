@@ -3,6 +3,7 @@ class CreateRestWebClients < ActiveRecord::Migration
     create_table :rest_web_clients do |t|
       t.string :username
       t.string :password
+      t.string :msg
 
       t.timestamps
     end

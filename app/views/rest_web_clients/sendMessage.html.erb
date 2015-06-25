@@ -1,6 +1,6 @@
 <h1>Login Web-Client</h1>
 
-<%= form_for @rest_web_client, url: {action: "sendMessage"} do |f| %>
+<%= form_for @rest_web_client, url: {action: "sendMessageAction"} do |f| %>
     <% if @rest_web_client.errors.any? %>
         <div id="error_explanation">
           <h2><%= pluralize(@rest_web_client.errors.count, "error") %> prohibited this rest_web_client from being saved:</h2>
@@ -21,10 +21,16 @@
       <%= f.label :password %><br>
       <%= f.text_field :password %>
     </div>
+    <div class="field">
+      <%= f.label :msg %><br>
+      <%= f.text_field :msg %>
+    </div>
     <div class="actions">
       <%= f.submit %>
     </div>
+
+
 <% end %>
 
-
+<%=  @users %>
 <%= link_to 'Back', rest_web_clients_path %>

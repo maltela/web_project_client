@@ -16,6 +16,7 @@ ActiveRecord::Schema.define(version: 20150524151307) do
   create_table "rest_web_clients", force: true do |t|
     t.string   "username"
     t.string   "password"
+    t.string   "msg"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
