@@ -99,7 +99,35 @@ class RestWebClientsController < ApplicationController
   def login
     @rest_web_client = RestWebClient.new
 
+
+
   end
+
+
+  def loginAction
+    @rest_web_client = RestWebClient.new(rest_web_client_params)
+    String username=@rest_web_client.username
+    logger.debug("log:"+rest_web_client_params.to_s)
+    #response = JSON.parse(RestClient.get('http://fh.thomassennekamp.de/server/User' ,
+    url = 'http://webengproject.herokuapp.com/'+username
+    response = JSON.parse(RestClient.get url)
+
+    salt_masterkey=response['salt_masterkey']
+    privkey_user_enc=response['privkey_user_enc']
+    pubkey_user=response['pubkey_user']
+    status=response['status']
+    logger.debug(response)
+    if(status==111)
+     then
+
+      redirect_to action: "sendMessage",  alert: "ok "
+    else
+
+    redirect_to action: "login",  alert: "Error User fehler "
+    end
+  end
+
+
   def sendMessage
 
     @rest_web_client = RestWebClient.new
@@ -120,7 +148,7 @@ class RestWebClientsController < ApplicationController
 
 
   def receive
-    login()
+
   end
 
 
@@ -291,14 +319,9 @@ class RestWebClientsController < ApplicationController
 
   def showUser
 
-    response = RestClient.get 'http://fh.thomassennekamp.de/server/AllUsers'
-    @output=JSON.parse(response)
-
-
-    response2 = RestClient.get 'http://webengproject.herokuapp.com/all'
-    @output2=JSON.parse(response2)
-    logger.debug(response.to_str)
-
+    url = 'http://fh.thomassennekamp.de/server/AllUsers'
+    response = JSON.parse(RestClient.get url)
+    @output=(response['users'])
 
   end
 

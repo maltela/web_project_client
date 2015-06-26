@@ -1,28 +1,3 @@
-<h1>Listing rest_web_clients</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Password</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @rest_web_clients.each do |rest_web_client| %>
-      <tr>
-        <td><%= rest_web_client.username %></td>
-        <td><%= rest_web_client.password %></td>
-        <td><%= link_to 'Show', rest_web_client %></td>
-        <td><%= link_to 'Edit', edit_rest_web_client_path(rest_web_client) %></td>
-        <td><%= link_to 'Destroy', rest_web_client, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-
 <table>
   <thead>
   <tr>
@@ -35,7 +10,7 @@
     <td><%= link_to 'User anzeigen',            controller: "rest_web_clients", action: "showUser"  %></td>
     <td><%= link_to "User registrieren",        controller: "rest_web_clients", action: "new"       %></td>
     <td><%= link_to 'User einloggen',           controller: "rest_web_clients", action: "login"     %></td>
-    <td><%= link_to 'Nachricht verschicken',    controller: "rest_web_clients", action: "sendMessage"      %></td>
+    <td><%= link_to 'Nachricht verschicken',    controller: "rest_web_clients", action: "sendMessage" %></td>
     <td><%= link_to 'Nachrichten empfangen',    controller: "rest_web_clients", action: "receive"   %></td>
   </tr>
 

@@ -9,7 +9,7 @@ Rails.application.routes.draw do
 
   get 'register', to: 'rest_web_clients#registration'
 
-  get 'send', to: 'rest_web_clients#login'
+  get 'login', to: 'rest_web_clients#login'
 
   post 'loginAction', to: 'rest_web_clients#loginAction'
 
