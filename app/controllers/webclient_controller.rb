@@ -207,8 +207,6 @@ class WebclientController < ActionController::Base
 
   def getUsers
     RestClient.get 'http://fh.thomassennekamp.de/server/AllUsers'
-    #    => "{\"users\":[\"thomas04\",\"thomas05\",\"thomas06\",\"thomas07\",\"thomas08\",\"thomas09\",\"thomas10\",\"thomas11\"]}"
-
   end
 
 

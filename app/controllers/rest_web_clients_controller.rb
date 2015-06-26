@@ -58,42 +58,39 @@ class RestWebClientsController < ApplicationController
     rsakeys = OpenSSL::PKey::RSA.new(2048)
     privkey_user = rsakeys.to_pem
     pubkey_user  = rsakeys.public_key.to_pem
-
-    logger.debug("After RSA Privatkey :"+privkey_user.size.to_s)
-    logger.debug("After RSA Pubkey :"+pubkey_user.size.to_s)
     # privkey verschlüsseln
     aes = OpenSSL::Cipher::AES.new(128, :ECB)
     aes.encrypt
     aes.key = masterkey.to_s
     crypt = aes.update(privkey_user) + aes.final
-    logger.debug("After AES :"+crypt.size.to_s)
     #Base64
     privkey_user_enc =  (Base64.encode64(crypt))
-    logger.debug("After Base64 :"+privkey_user_enc.size.to_s)
+
     # Daten an Server übertragen
-   # response = RestClient.post('http://fh.thomassennekamp.de/server/user' ,
-    #                           {
-     #                              :identity          => @rest_web_client.username,
-      #                             :salt_masterkey    => salt_masterkey,
-       #                            :privkey_user_enc  => privkey_user_enc,
-        #                           :pubkey_user       => pubkey_user
-       #                        }
-    #)
+    response1 = RestClient.post('http://fh.thomassennekamp.de/server/user' ,
+                               {
+                                   :identity          => @rest_web_client.username,
+                                   :salt_masterkey    => salt_masterkey,
+                                   :privkey_user_enc  => privkey_user_enc,
+                                   :pubkey_user       => pubkey_user
+                               }
+    )
+
+    logger.debug(response1.to_s + " Gruppe2: " + response1['identity'].to_s)
 
 
-    response = RestClient.post('http://webengproject.herokuapp.com' ,
+    response2 = RestClient.post('http://webengproject.herokuapp.com' ,
                                {
                                    :identity          => @rest_web_client.username,
                                    :privkey_user_enc  => privkey_user_enc,
                                    :pubkey_user       => pubkey_user,
                                    :salt_masterkey    => salt_masterkey
                                }
-                             # Reihenfolge nicht relevant
                               )
 
 
 
-    logger.debug(response.to_s + " CODE : " + response['status_code'].to_s)
+    logger.debug(response2.to_s + " CODE : " + response2['status_code'].to_s)
 
     redirect_to action: "index",  alert: "User registriert"
   end
@@ -114,14 +111,20 @@ class RestWebClientsController < ApplicationController
     response = JSON.parse(RestClient.get url)
 
 
-    response['identity'].each do |user|
+    response.each do |user|
       logger.debug(user['identity'])
     end
 
   end
 
 
+
   def receive
+    login()
+  end
+
+
+  def receiveAction
 
     identity = params[:parmUser]
     privkey_user = params[:privkey_user]
@@ -161,9 +164,10 @@ class RestWebClientsController < ApplicationController
     identity = @rest_web_client.username
     password = @rest_web_client.password
     message  = @rest_web_client.msg
+    receiver = @rest_web_client.receiver
 
 
-    logger.debug("User: "+identity+"Password: "+password+"Message :"+message)
+    logger.debug("User: "+identity+"Password: "+password+"Message :"+message+"Empfänger"+receiver)
 
 
     # Erhalte den Sender PubKey vom Server
@@ -289,6 +293,10 @@ class RestWebClientsController < ApplicationController
 
     response = RestClient.get 'http://fh.thomassennekamp.de/server/AllUsers'
     @output=JSON.parse(response)
+
+
+    response2 = RestClient.get 'http://webengproject.herokuapp.com/all'
+    @output2=JSON.parse(response2)
     logger.debug(response.to_str)
 
 

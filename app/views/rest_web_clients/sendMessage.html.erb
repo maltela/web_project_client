@@ -25,6 +25,12 @@
       <%= f.label :msg %><br>
       <%= f.text_field :msg %>
     </div>
+
+    <div class="field">
+      <%= f.label :receiver %><br>
+      <%= f.text_field :receiver %>
+    </div>
+    <%= f.collection_select  %>
     <div class="actions">
       <%= f.submit %>
     </div>
