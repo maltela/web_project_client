@@ -95,6 +95,7 @@ class RestWebClientsController < ApplicationController
 
     logger.debug(response.to_s + " CODE : " + response['status_code'].to_s)
 
+    redirect_to action: "index",  alert: "User registriert"
   end
 
 
@@ -277,8 +278,7 @@ class RestWebClientsController < ApplicationController
     logger.debug(response['status_code'].to_s)
 
 
-    redirect_to(sendMessage)
-
+    redirect_to action: "index",  alert: "Nachricht verschickt"
   end
   # PATCH/PUT /rest_web_clients/1
   # PATCH/PUT /rest_web_clients/1.json
