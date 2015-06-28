@@ -27,6 +27,7 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
   gem 'sqlite3'
 #end
 
+gem 'httparty', '~> 0.13.5'
 #heroku
 #group :production do
 #  gem 'pg'

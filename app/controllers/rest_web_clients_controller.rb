@@ -6,6 +6,7 @@ require 'base64'
 require 'rubygems'
 require 'rest_client'
 require 'digest'
+require 'HTTParty'
 
 class RestWebClientsController < ApplicationController
   before_action :set_rest_web_client, only: [:show, :edit, :update, :destroy]
@@ -67,16 +68,19 @@ class RestWebClientsController < ApplicationController
     privkey_user_enc =  (Base64.encode64(crypt))
 
     # Daten an Server übertragen
-    response1 = RestClient.post('http://fh.thomassennekamp.de/server/user' ,
+    response1 = RestClient.post('http://fh.thomassennekamp.de/server/User' ,
                                {
                                    :identity          => @rest_web_client.username,
                                    :salt_masterkey    => salt_masterkey,
                                    :privkey_user_enc  => privkey_user_enc,
                                    :pubkey_user       => pubkey_user
                                }
-    )
+                              )
 
-    logger.debug(response1.to_s + " Gruppe2: " + response1['identity'].to_s)
+    result = JSON.parse response1
+
+    logger.debug("Gruppe2: " + result['identity'])
+
 
 
     response2 = RestClient.post('http://webengproject.herokuapp.com' ,
@@ -90,9 +94,18 @@ class RestWebClientsController < ApplicationController
 
 
 
-    logger.debug(response2.to_s + " CODE : " + response2['status_code'].to_s)
+    logger.debug("MAJOM"+response2.to_s + " CODE : " + response2["status_code"])
 
-    redirect_to action: "index",  alert: "User registriert"
+    status=response2['status_code'].to_s
+    if(status==110)
+    then
+
+      redirect_to action: "sendMessage",  alert: "ok "
+    else
+
+      redirect_to action: "index",  alert: "User nicht registriert !"
+    end
+
   end
 
 
@@ -108,19 +121,40 @@ class RestWebClientsController < ApplicationController
     @rest_web_client = RestWebClient.new(rest_web_client_params)
     String username=@rest_web_client.username
     logger.debug("log:"+rest_web_client_params.to_s)
-    #response = JSON.parse(RestClient.get('http://fh.thomassennekamp.de/server/User' ,
-    url = 'http://webengproject.herokuapp.com/'+username
-    response = JSON.parse(RestClient.get url)
+    url ='http://webengproject.herokuapp.com/'+username
+    url2='http://fh.thomassennekamp.de/server/User'
+
+    # Zugangsdaten vom Dienstleister abfragen
+    #response  = JSON.parse(RestClient.get url)
+    response  = HTTParty.get(url)
+    #response2 = JSON.parse(RestClient.get url2)
+
+    response2 = HTTParty.get(url2,{query: {term: 'tame impala'}, format: :json})
+
+
 
     salt_masterkey=response['salt_masterkey']
+    #salt_masterkey2=response2['salt_masterkey']
     privkey_user_enc=response['privkey_user_enc']
+    #privkey_user_enc2=response2['privkey_user_enc']
     pubkey_user=response['pubkey_user']
     status=response['status']
-    logger.debug(response)
+    #logger.debug('MAJOM:'+response.to_s)
+    logger.debug('GRP2:'+response2.to_s)
+    #Authorizierung prüfen
+
+    String password = @rest_web_client.password
+
+    masterkeyLogin = PBKDF2.new(:password=>password, :salt=>salt_masterkey, :iterations=>10000)
+
+    cipher = OpenSSL::Cipher.new('AES-128-ECB')
+    cipher.decrypt()
+    cipher.key = masterkeyLogin.bin_string
+    @privkey_user = Base64.decode64(privkey_user_enc)
+
     if(status==111)
      then
-
-      redirect_to action: "sendMessage",  alert: "ok "
+      redirect_to action: "login",  alert: "ok - UserDaten anzeigen "
     else
 
     redirect_to action: "login",  alert: "Error User fehler "
@@ -132,6 +166,8 @@ class RestWebClientsController < ApplicationController
 
     @rest_web_client = RestWebClient.new
 
+    test = @rest_web_client.privkey_user
+    logger.debug(test.to_s)
     ## Empfänger auswählen
 
     url = 'http://webengproject.herokuapp.com/all'
