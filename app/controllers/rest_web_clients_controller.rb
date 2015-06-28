@@ -154,26 +154,29 @@ class RestWebClientsController < ApplicationController
 
   def receiveAction
 
-    identity = params[:parmUser]
-    privkey_user = params[:privkey_user]
+    @rest_web_client = RestWebClient.new
 
-    response =      RestClient.post 'http://webengproject.herokuapp.com/'+identity.to_s+'/message',
-                     {
-                         :message_id  => 2,
-                         :timestamp   => 54322222,
-                         :sig_message => 'hbtsthbtbsthbs3'
-                     }
-    logger.debug(response.to_s)
-      #RestClient.get 'http://fh.thomassennekamp.de/server/Message',
-       #              {:params => {
-        #                 :identity  => 'thomas06',
-          #               :timestamp => 54322222,
-         #                :signature => 'hbtsthbtbsthbs3'
-          #           }
-           #          }
+    #identity = params[:parmUser]
+    #privkey_user = params[:privkey_user]
+
+    #response =      RestClient.post 'http://webengproject.herokuapp.com/'+identity.to_s+'/message',
+     #                {
+      #                   :message_id  => 2,
+       #                  :timestamp   => 54322222,
+        #                 :sig_message => 'hbtsthbtbsthbs3'
+         #            }
+    #logger.debug(response.to_s)
+
+   response = RestClient.get 'http://fh.thomassennekamp.de/server/Message',
+                    {:params => {
+                         :identity  => @rest_web_client.username,
+                         :timestamp => Time.now.to_i,
+                         :signature => 'hbtsthbtbsthbs3'
+                    }
+    }
 
 
-    recipient          =response['recipient']
+    @recipient         =response['recipient']
     @cipher            =response['cipher']
     @iv                =response['iv']
     @key_recipient_enc =response['key_recipient_enc']
@@ -185,7 +188,7 @@ class RestWebClientsController < ApplicationController
 
   def sendMessageAction
 
-    receiver  = params[:parmReceiver]
+    @receiver  = params[:parmReceiver]
 
     @rest_web_client = RestWebClient.new(rest_web_client_params)
 
