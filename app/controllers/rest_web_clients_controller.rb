@@ -43,7 +43,7 @@ class RestWebClientsController < ApplicationController
     # Implementierung Unklar !!
     salt_masterkey= SecureRandom.hex(64)
     salt_masterkey=salt_masterkey.to_i(16)
-    logger.debug(salt_masterkey.size)
+    #logger.debug(salt_masterkey.size)
     salt_masterkey=salt_masterkey.to_s
     logger.debug("Salt_Masterkey: "+salt_masterkey.to_s)
 
@@ -68,18 +68,21 @@ class RestWebClientsController < ApplicationController
     privkey_user_enc =  (Base64.encode64(crypt))
 
     # Daten an Server übertragen
-    response1 = RestClient.post('http://fh.thomassennekamp.de/server/User' ,
-                               {
-                                   :identity          => @rest_web_client.username,
-                                   :salt_masterkey    => salt_masterkey,
-                                   :privkey_user_enc  => privkey_user_enc,
-                                   :pubkey_user       => pubkey_user
-                               }
-                              )
+    response1 = RestClient.post('http://fh.thomassennekamp.de/server/user',
+                              {
+                                :identity          => 'test123456z6',
+                                :salt_masterkey    => '1234567',
+                                :pubkey_user       => '1234567',
+                                :privkey_user_enc  => '123456'
+                             }
+                             )
 
-    result = JSON.parse response1
+    #response1 = HTTParty.post("http://fh.thomassennekamp.de/server/user", :query => { :identity => "alan+thinkvitamin@ee.com",:salt_masterkey => 'test',:privkey_user_enc => 'test',:pubkey_user =>'2345' })
 
-    logger.debug("Gruppe2: " + result['identity'])
+    logger.debug("JSON:"+response1.to_s)
+    result1 = JSON.parse response1
+
+    logger.debug("Gruppe2: " + result1.to_s)
 
 
 
@@ -92,15 +95,18 @@ class RestWebClientsController < ApplicationController
                                }
                               )
 
+    result2 = JSON.parse response2
 
+    logger.debug("MAJOM"+result2.to_s + " CODE : " + result2["status_code"].to_s)
 
-    logger.debug("MAJOM"+response2.to_s + " CODE : " + response2["status_code"])
-
-    status=response2['status_code'].to_s
+    status=result2['status_code']
     if(status==110)
     then
 
-      redirect_to action: "sendMessage",  alert: "ok "
+
+
+      #redirect_to action: "sendMessage",  alert: "ok "
+      redirect_to action: "index",  alert: "ok "
     else
 
       redirect_to action: "index",  alert: "User nicht registriert !"
@@ -150,7 +156,9 @@ class RestWebClientsController < ApplicationController
     cipher = OpenSSL::Cipher.new('AES-128-ECB')
     cipher.decrypt()
     cipher.key = masterkeyLogin.bin_string
-    @privkey_user = Base64.decode64(privkey_user_enc)
+    privkey_user = Base64.decode64(privkey_user_enc)
+
+
 
     if(status==111)
      then
