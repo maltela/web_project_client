@@ -17,9 +17,11 @@ Rails.application.routes.draw do
 
   post 'sendMessageAction', to: 'rest_web_clients#sendMessageAction'
 
-  get 'receive', to: 'rest_web_clients#receive'
+  post 'receiveAction', to: 'rest_web_clients#receiveAction'
 
   get 'showUser', to: 'rest_web_clients#showUser'
+
+  get 'afterlogin', to: 'rest_web_clients#afterlogin'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

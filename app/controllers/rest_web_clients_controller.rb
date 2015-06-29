@@ -22,6 +22,12 @@ class RestWebClientsController < ApplicationController
   def show
   end
 
+  def afterlogin
+    @rest_web_client = RestWebClient.new()
+
+
+
+  end
 
   # GET /rest_web_clients/new
   def new
@@ -162,7 +168,7 @@ class RestWebClientsController < ApplicationController
 
     if(status==111)
      then
-      redirect_to action: "login",  alert: "ok - UserDaten anzeigen "
+      redirect_to action: "afterlogin",  alert: "ok - UserDaten anzeigen "
     else
 
     redirect_to action: "login",  alert: "Error User fehler "
@@ -174,8 +180,8 @@ class RestWebClientsController < ApplicationController
 
     @rest_web_client = RestWebClient.new
 
-    test = @rest_web_client.privkey_user
-    logger.debug(test.to_s)
+   # test = @rest_web_client.privkey_user
+    #logger.debug(test.to_s)
     ## Empfänger auswählen
 
     url = 'http://webengproject.herokuapp.com/all'
@@ -191,33 +197,30 @@ class RestWebClientsController < ApplicationController
 
 
 
-  def receive
-
-  end
-
-
   def receiveAction
 
-    @rest_web_client = RestWebClient.new
 
-    #identity = params[:parmUser]
+    @rest_web_client = RestWebClient.new(rest_web_client_params)
+
+    identity = params[:parmUser]
     #privkey_user = params[:privkey_user]
+    logger.debug('User:'+identity.to_s)
 
-    #response =      RestClient.post 'http://webengproject.herokuapp.com/'+identity.to_s+'/message',
-     #                {
-      #                   :message_id  => 2,
-       #                  :timestamp   => 54322222,
-        #                 :sig_message => 'hbtsthbtbsthbs3'
-         #            }
-    #logger.debug(response.to_s)
-
-   response = RestClient.get 'http://fh.thomassennekamp.de/server/Message',
-                    {:params => {
-                         :identity  => @rest_web_client.username,
-                         :timestamp => Time.now.to_i,
-                         :signature => 'hbtsthbtbsthbs3'
+    response =      RestClient.post 'http://webengproject.herokuapp.com/'+identity.to_s+'/message',
+                    {
+                         :message_id  => 2,
+                         :timestamp   => 54322222,
+                         :sig_message => 'hbtsthbtbsthbs3'
                     }
-    }
+    logger.debug(response.to_s)
+
+   #response = RestClient.get 'http://fh.thomassennekamp.de/server/Message',
+     #               {:params => {
+    #                     :identity  => @rest_web_client.username,
+      #                   :timestamp => Time.now.to_i,
+       #                  :signature => 'hbtsthbtbsthbs3'
+        #              }
+         #       }
 
 
     @recipient         =response['recipient']
@@ -239,7 +242,7 @@ class RestWebClientsController < ApplicationController
     identity = @rest_web_client.username
     password = @rest_web_client.password
     message  = @rest_web_client.msg
-    receiver = @rest_web_client.receiver
+   # receiver = @rest_web_client.receiver
 
 
     logger.debug("User: "+identity+"Password: "+password+"Message :"+message+"Empfänger"+receiver)
