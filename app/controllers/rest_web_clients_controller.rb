@@ -74,21 +74,21 @@ class RestWebClientsController < ApplicationController
     privkey_user_enc =  (Base64.encode64(crypt))
 
     # Daten an Server übertragen
-    response1 = RestClient.post('http://fh.thomassennekamp.de/server/user',
-                              {
-                                :identity          => 'test123456z6',
-                                :salt_masterkey    => '1234567',
-                                :pubkey_user       => '1234567',
-                                :privkey_user_enc  => '123456'
-                             }
-                             )
+    #response1 = RestClient.post('http://fh.thomassennekamp.de/server/user',
+     #                         {
+      #                          :identity          => 'test123456z6',
+       #                         :salt_masterkey    => '1234567',
+        #                        :pubkey_user       => '1234567',
+         #                       :privkey_user_enc  => '123456'
+          #                   }
+           #                  )
 
     #response1 = HTTParty.post("http://fh.thomassennekamp.de/server/user", :query => { :identity => "alan+thinkvitamin@ee.com",:salt_masterkey => 'test',:privkey_user_enc => 'test',:pubkey_user =>'2345' })
 
-    logger.debug("JSON:"+response1.to_s)
-    result1 = JSON.parse response1
+    #logger.debug("JSON:"+response1.to_s)
+    #result1 = JSON.parse response1
 
-    logger.debug("Gruppe2: " + result1.to_s)
+    #logger.debug("Gruppe2: " + result1.to_s)
 
 
 

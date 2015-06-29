@@ -1,4 +1,4 @@
-<table>
+<center><table border="1">
   <thead>
   <tr>
     <th>Funktions-Aufrufe</th>
@@ -8,7 +8,11 @@
 
   <tr>
     <td><%= link_to 'User anzeigen',            controller: "rest_web_clients", action: "showUser"  %></td>
+   </tr>
+  <tr>
     <td><%= link_to "User registrieren",        controller: "rest_web_clients", action: "new"       %></td>
+    </tr>
+  <tr>
     <td><%= link_to 'User einloggen',           controller: "rest_web_clients", action: "login"     %></td>
   </tr>
 
@@ -16,5 +20,4 @@
 </table>
 
 <br>
-
-<%= link_to 'New Rest web client', new_rest_web_client_path %>
+</center>
