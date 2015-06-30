@@ -17,6 +17,7 @@ ActiveRecord::Schema.define(version: 20150524151307) do
     t.string   "username"
     t.string   "password"
     t.string   "msg"
+    t.string   "receiver"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

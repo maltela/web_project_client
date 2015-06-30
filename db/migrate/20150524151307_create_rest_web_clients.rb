@@ -4,6 +4,7 @@ class CreateRestWebClients < ActiveRecord::Migration
       t.string :username
       t.string :password
       t.string :msg
+      t.string :receiver
 
       t.timestamps
     end

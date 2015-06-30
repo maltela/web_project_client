@@ -23,6 +23,9 @@ class RestWebClientsController < ApplicationController
   end
 
   def afterlogin
+    username = params[:parm_username]
+    password = params[:parm_password]
+
     @rest_web_client = RestWebClient.new()
 
 
@@ -73,22 +76,22 @@ class RestWebClientsController < ApplicationController
     #Base64
     privkey_user_enc =  (Base64.encode64(crypt))
 
-    # Daten an Server übertragen
-    #response1 = RestClient.post('http://fh.thomassennekamp.de/server/user',
-     #                         {
-      #                          :identity          => 'test123456z6',
-       #                         :salt_masterkey    => '1234567',
-        #                        :pubkey_user       => '1234567',
-         #                       :privkey_user_enc  => '123456'
-          #                   }
-           #                  )
+     #Daten an Server übertragen
+    response1 = RestClient.post('http://fh.thomassennekamp.de/server/user',
+                            {
+                               :identity          => 'test123456z6',
+                               :salt_masterkey    => '1234567',
+                               :pubkey_user       => '1234567',
+                                :privkey_user_enc  => '123456'
+                             }.to_json, :content_type => :json, :accept => :json
+                             )
 
     #response1 = HTTParty.post("http://fh.thomassennekamp.de/server/user", :query => { :identity => "alan+thinkvitamin@ee.com",:salt_masterkey => 'test',:privkey_user_enc => 'test',:pubkey_user =>'2345' })
 
-    #logger.debug("JSON:"+response1.to_s)
-    #result1 = JSON.parse response1
+    logger.debug("JSON:"+response1.to_s)
+    result1 = JSON.parse response1
 
-    #logger.debug("Gruppe2: " + result1.to_s)
+    logger.debug("Gruppe2: " + result1.to_s)
 
 
 
@@ -98,7 +101,7 @@ class RestWebClientsController < ApplicationController
                                    :privkey_user_enc  => privkey_user_enc,
                                    :pubkey_user       => pubkey_user,
                                    :salt_masterkey    => salt_masterkey
-                               }
+                               }.to_json, :content_type => :json, :accept => :json
                               )
 
     result2 = JSON.parse response2
@@ -131,17 +134,20 @@ class RestWebClientsController < ApplicationController
 
   def loginAction
     @rest_web_client = RestWebClient.new(rest_web_client_params)
-    String username=@rest_web_client.username
+    username=@rest_web_client.username
+    password=@rest_web_client.password
     logger.debug("log:"+rest_web_client_params.to_s)
     url ='http://webengproject.herokuapp.com/'+username
     url2='http://fh.thomassennekamp.de/server/User'
 
     # Zugangsdaten vom Dienstleister abfragen
-    #response  = JSON.parse(RestClient.get url)
-    response  = HTTParty.get(url)
-    #response2 = JSON.parse(RestClient.get url2)
+    #response  = JSON.parse(RestClient.get url),{:accept => :json}
 
-    response2 = HTTParty.get(url2,{query: {term: 'tame impala'}, format: :json})
+    RestClient.put('http://fh.thomassennekamp.de/server/User' , {
+                        :identity          => @rest_web_client.username,
+                    }.to_json, :content_type => :json, :accept => :json
+    )
+  
 
 
 
@@ -168,7 +174,7 @@ class RestWebClientsController < ApplicationController
 
     if(status==111)
      then
-      redirect_to action: "afterlogin",  alert: "ok - UserDaten anzeigen "
+      redirect_to action: "afterlogin",  alert: "ok - UserDaten anzeigen ", :parm_username => username, :parm_password => password
     else
 
     redirect_to action: "login",  alert: "Error User fehler "
@@ -178,7 +184,9 @@ class RestWebClientsController < ApplicationController
 
   def sendMessage
 
-    @rest_web_client = RestWebClient.new
+    @rest_web_client = RestWebClient.new(rest_web_client_params)
+
+    logger.debug("SendMessage:"+@rest_web_clients.to_s)
 
    # test = @rest_web_client.privkey_user
     #logger.debug(test.to_s)
@@ -235,14 +243,12 @@ class RestWebClientsController < ApplicationController
 
   def sendMessageAction
 
-    @receiver  = params[:parmReceiver]
-
     @rest_web_client = RestWebClient.new(rest_web_client_params)
-
+    logger.debug("SendMessage_Action:"+@rest_web_clients.to_s)
     identity = @rest_web_client.username
     password = @rest_web_client.password
     message  = @rest_web_client.msg
-   # receiver = @rest_web_client.receiver
+    receiver  = @rest_web_client.receiver
 
 
     logger.debug("User: "+identity+"Password: "+password+"Message :"+message+"Empfänger"+receiver)
@@ -337,7 +343,7 @@ class RestWebClientsController < ApplicationController
 
     # Auruf verfübarer User -> restclient /all
 
-    recipient='Myles'
+    recipient=receiver
 
     data = identity+cipher.to_s+iv+key_recipient_enc+sig_recipient.to_s+timestamp.to_s+recipient
     sig_service = OpenSSL::HMAC.hexdigest('sha256', privkey_user,data)
@@ -393,6 +399,6 @@ class RestWebClientsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def rest_web_client_params
-      params.require(:rest_web_client).permit(:username, :password, :msg)
+      params.require(:rest_web_client).permit(:username, :password, :msg, :receiver)
     end
 end
