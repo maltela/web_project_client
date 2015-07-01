@@ -79,10 +79,10 @@ class RestWebClientsController < ApplicationController
      #Daten an Server übertragen
     response1 = RestClient.post('http://fh.thomassennekamp.de/server/user',
                             {
-                               :identity          => 'test123456z6',
-                               :salt_masterkey    => '1234567',
-                               :pubkey_user       => '1234567',
-                                :privkey_user_enc  => '123456'
+                                :identity          => @rest_web_client.username,
+                                :privkey_user_enc  => privkey_user_enc,
+                                :pubkey_user       => pubkey_user,
+                                :salt_masterkey    => salt_masterkey
                              }.to_json, :content_type => :json, :accept => :json
                              )
 
@@ -141,23 +141,17 @@ class RestWebClientsController < ApplicationController
     url2='http://fh.thomassennekamp.de/server/User'
 
     # Zugangsdaten vom Dienstleister abfragen
-    #response  = JSON.parse(RestClient.get url),{:accept => :json}
-
-
-
-    RestClient.put('http://fh.thomassennekamp.de/server/User' , {
+    request = RestClient.put('http://fh.thomassennekamp.de/server/User' , {
                         :identity          => @rest_web_client.username,
                     }.to_json, :content_type => :json, :accept => :json
     )
-  
-
-
-
+    response = JSON.parse request
+    logger.debug("Login:"+response.to_s)
     salt_masterkey=response['salt_masterkey']
     privkey_user_enc=response['privkey_user_enc']
     pubkey_user=response['pubkey_user']
-    status=response['status']
-    logger.debug('GRP2:'+response2.to_s)
+    identity=response['identity']
+
     #Authorizierung prüfen
 
     String password = @rest_web_client.password
@@ -171,7 +165,7 @@ class RestWebClientsController < ApplicationController
 
 
 
-    if(status==111)
+    if(identity!=nil)
      then
       redirect_to action: "afterlogin",  alert: "ok - UserDaten anzeigen ", :parm_username => username, :parm_password => password
     else
