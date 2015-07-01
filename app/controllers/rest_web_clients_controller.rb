@@ -143,6 +143,8 @@ class RestWebClientsController < ApplicationController
     # Zugangsdaten vom Dienstleister abfragen
     #response  = JSON.parse(RestClient.get url),{:accept => :json}
 
+
+
     RestClient.put('http://fh.thomassennekamp.de/server/User' , {
                         :identity          => @rest_web_client.username,
                     }.to_json, :content_type => :json, :accept => :json
@@ -152,12 +154,9 @@ class RestWebClientsController < ApplicationController
 
 
     salt_masterkey=response['salt_masterkey']
-    #salt_masterkey2=response2['salt_masterkey']
     privkey_user_enc=response['privkey_user_enc']
-    #privkey_user_enc2=response2['privkey_user_enc']
     pubkey_user=response['pubkey_user']
     status=response['status']
-    #logger.debug('MAJOM:'+response.to_s)
     logger.debug('GRP2:'+response2.to_s)
     #Authorizierung prüfen
 
@@ -188,8 +187,6 @@ class RestWebClientsController < ApplicationController
 
     logger.debug("SendMessage:"+@rest_web_clients.to_s)
 
-   # test = @rest_web_client.privkey_user
-    #logger.debug(test.to_s)
     ## Empfänger auswählen
 
     url = 'http://webengproject.herokuapp.com/all'
