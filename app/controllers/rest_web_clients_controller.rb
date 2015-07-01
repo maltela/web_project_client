@@ -238,13 +238,13 @@ class RestWebClientsController < ApplicationController
     receiver  = @rest_web_client.receiver
 
 
-    logger.debug("User: "+identity+"Password: "+password+"Message :"+message+"Empfänger"+receiver)
+    logger.debug("User: "+identity+",Password: "+password+",Message: "+message+",Empfänger: "+receiver)
 
 
     # Erhalte den Sender PubKey vom Server
 
     url = 'http://fh.thomassennekamp.de/server/PubKey'
-    response = JSON.parse(RestClient.get url)
+    response = JSON.parse(RestClient.get url, {:params => {:identity => identity}})
 
     statuscode = response["status_code"].to_i
 
@@ -281,13 +281,13 @@ class RestWebClientsController < ApplicationController
 
     # Pubkey des Empfängers abrufen
     #response = RestClient.get 'http://fh.thomassennekamp.de/server/User', {:params => {:identity => 'thomas07'}}
-    url = 'http://webengproject.herokuapp.com/'+receiver+'/pubkey'
-    response    = JSON.parse(RestClient.get url)
+    url = 'http://fh.thomassennekamp.de/server/PubKey'
+    response    = JSON.parse(RestClient.get url, {:params => {identity => receiver}})
     statuscode  = response["status_code"].to_i
 
-    if statuscode>400
+    if statuscode>399
 
-      redirect_to action: "sendMessage",  alert: "Error User fehler "
+      redirect_to action: "afterlogin",  alert: "Error User fehler "
     end
     pubkey_recipient = response["pubkey_user"].to_s
     statuscode        = response["status_code"].to_s
