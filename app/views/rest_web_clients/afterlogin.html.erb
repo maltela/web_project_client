@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+</head>
+<body>
+<table border="10">
+  <tr>
+    <td>Nachricht verschicken</td>
+    <td>Nachricht abrufen</td>
+  </tr>
+  <tr>
+    <td><%= form_for @rest_web_client, url: {action: "sendMessageAction"} do |f| %>
+          <% if @rest_web_client.errors.any? %>
+              <div id="error_explanation">
+                <h2><%= pluralize(@rest_web_client.errors.count, "error") %> prohibited this rest_web_client from being saved:</h2>
+
+                <ul>
+                  <% @rest_web_client.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+          <% end %>
+          <div class="field">
+            <%= f.label :username %><br>
+            <%= f.text_field :username %>
+          </div>
+          <div class="field">
+            <%= f.label :password %><br>
+            <%= f.text_field :password %>
+          </div>
+          <div class="field">
+            <%= f.label :msg %><br>
+            <%= f.text_field :msg %>
+          </div>
+
+          <div class="field">
+            <%= f.label :receiver %><br>
+            <%= f.text_field :receiver %>
+          </div>
+          <div class="actions">
+            <%= f.submit %>
+          </div>
+      <% end %>
+    </td>
+    <td><%= form_for @rest_web_client, url: {action: "receiveAction"} do |f| %>
+          <% if @rest_web_client.errors.any? %>
+              <div id="error_explanation">
+                <h2><%= pluralize(@rest_web_client.errors.count, "error") %> prohibited this rest_web_client from being saved:</h2>
+
+                <ul>
+                  <% @rest_web_client.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+          <% end %>
+
+          <div class="field">
+            <%= f.label :username %><br>
+            <%= f.text_field :username %>
+          </div>
+          </div>
+          <div class="actions">
+            <%= f.submit %>
+          </div>
+      <% end %>
+      </td>
+  </tr>
+</table>
+</body>
+</html>
