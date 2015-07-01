@@ -337,7 +337,7 @@ class RestWebClientsController < ApplicationController
 
     # Nachricht verschicken
 
-    response=RestClient.post('http://webengproject.herokuapp.com/message',
+    response=RestClient.post('http://fh.thomassennekamp.de/server/Message',
                              {:inner_envelope  => {:sender              => identity,
                                                    :cipher                => Base64.encode64(cipher.to_s),
                                                    :iv                    => Base64.encode64(iv),
