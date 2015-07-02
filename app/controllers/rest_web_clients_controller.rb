@@ -209,53 +209,56 @@ class RestWebClientsController < ApplicationController
 
     logger.debug("User: "+identity+",Password: "+password+",Message: "+message+",Empfänger: "+receiver)
 
-
+    # Ersetzt durch Login-Method
     # Erhalte den Sender PubKey vom Server
 
-    url = 'http://fh.thomassennekamp.de/server/PubKey'
-    response = JSON.parse(RestClient.get url, {:params => {:identity => identity}.to_json, :content_type => :json, :accept => :json})
+    #url = 'http://fh.thomassennekamp.de/server/PubKey'
+    #response = JSON.parse(RestClient.get url, {:params => {:identity => identity}.to_json, :content_type => :json, :accept => :json})
 
-    statuscode = response["status_code"].to_i
+    #statuscode = response["status_code"].to_i
 
-    if statuscode>399
+    #if statuscode>399
 
-      redirect_to action: "sendMessage",  alert: "Error User fehler "
-    end
+     # redirect_to action: "sendMessage",  alert: "Error User fehler "
+    #end
 
 
     # Pubkey User auslesen
-    pubkey_user       = response['pubkey_user'].to_s
-    salt_masterkey    = response['salt_masterkey'].to_s
-    privkey_user_enc  = response['privkey_user_enc'].to_s
+    #pubkey_user       = response['pubkey_user'].to_s
+    #salt_masterkey    = response['salt_masterkey'].to_s
+    #privkey_user_enc  = response['privkey_user_enc'].to_s
 
 
-    logger.debug("Pubkey:"+pubkey_user+" Salt_Masterkey:"+salt_masterkey+" Privkey"+privkey_user_enc)
+    #logger.debug("Pubkey:"+pubkey_user+" Salt_Masterkey:"+salt_masterkey+" Privkey"+privkey_user_enc)
 
 
-    masterkey = PBKDF2.new do |p|
-      p.password    = password
-      p.salt        = salt_masterkey
-      p.iterations  = 10000
-    end
+    #masterkey = PBKDF2.new do |p|
+     # p.password    = password
+      #p.salt        = salt_masterkey
+      #p.iterations  = 10000
+    #end
 
 
     #Entschlüsslung privkey_user_enc
 
-    cipher = OpenSSL::Cipher.new('AES-128-ECB')
-    cipher.decrypt()
-    cipher.key = masterkey.bin_string
-    privkey_user = Base64.decode64(privkey_user_enc)
+    #cipher = OpenSSL::Cipher.new('AES-128-ECB')
+    #cipher.decrypt()
+    #cipher.key = masterkey.bin_string
+    #privkey_user = Base64.decode64(privkey_user_enc)
 
+    # Aufruf durch $privkey_user
 
 
     # Pubkey des Empfängers abrufen
     #response = RestClient.get 'http://fh.thomassennekamp.de/server/User', {:params => {:identity => 'thomas07'}}
-    url = 'http://fh.thomassennekamp.de/server/PubKey'
-    response    = JSON.parse(RestClient.get url, {:params => {identity => receiver}})
-    statuscode  = response["status_code"].to_i
+    #url = 'http://fh.thomassennekamp.de/server/PubKey'
+    url='http://fh.thomassennekamp.de/server/User'
 
-    if statuscode>399
+    request = RestClient.put(url, {:identity => @rest_web_client.receiver }.to_json, :content_type => :json, :accept => :json )
+    response = JSON.parse request
 
+
+    if response['identity']==nil
       redirect_to action: "afterlogin",  alert: "Error User fehler "
     end
     pubkey_recipient = response["pubkey_user"].to_s
@@ -291,10 +294,13 @@ class RestWebClientsController < ApplicationController
 
     # SHA 256 digitale Signature bilden
 
+    # Variable aus Login Methode
+    privkey_user=$privkey_user
+
     data = identity+cipher.to_s+iv+key_recipient_enc
     sig_recipient = OpenSSL::HMAC.hexdigest('sha256', privkey_user,data)
-
     timestamp  = Time.now.to_i
+
     # Empfänger auswählen
 
     # Auruf verfübarer User -> restclient /all
@@ -316,11 +322,10 @@ class RestWebClientsController < ApplicationController
                               :timestamp    => timestamp,
                               :pubkey_user  => pubkey_recipient,
                               :sig_service  => sig_service
-                             })
+                             }.to_json, :content_type => :json, :accept => :json
+                            ){|response, request, result| response }
 
     logger.debug(response.code.to_s)
-    logger.debug(response['status_code'].to_s)
-
 
     redirect_to action: "index",  alert: "Nachricht verschickt"
   end
