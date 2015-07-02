@@ -131,7 +131,7 @@ class RestWebClientsController < ApplicationController
 
 
 
-    
+
 
     if(identity!=nil)
      then
@@ -195,7 +195,7 @@ class RestWebClientsController < ApplicationController
       redirect_to action: 'afterlogin', alert: 'Falscher Empfaenger'
     end
 
-
+    end
 
     def sendMessageAction
 
