@@ -1,21 +1,20 @@
-<% if flash[:alert] %>
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title" id="todo-label">Meldung</h4>
-      </div>
-      <div class="modal-body"> 
-	<% flash.each do |name, msg| -%>
-      		<%= content_tag :div, msg, class: name %>
-		<br>
-    	<% end -%>
 
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+<% if flash[:alert] %>
+<div class="modal fade in" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: block;">
+ <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="todo--label">Notes</h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
       </div>
     </div>
-   </div>
+</div>
+
 <% end %>
 <table class="table table-striped">
   <tr>
@@ -53,7 +52,7 @@
             <%= f.text_field :receiver %>
           </div>
 	<br>
-    <%= f.submit :class => "btn btn-success btn-lg" %>
+    <%= f.submit 'Nachricht abschicken' :class => "btn btn-success btn-lg" %>
       <% end %>
     </td>
     <td><%= form_for @rest_web_client, url: {action: "receiveAction"} do |f| %>
@@ -75,11 +74,9 @@
           </div>
           </div>
 	<br>
-    <%= f.submit :class => "btn btn-success btn-lg" %>
+    <%= f.submit 'Nachricht abrufen', :class => "btn btn-success btn-lg" %>
       <% end %>
       </td>
   </tr>
 </table>
-<div class="modal fade" id="alert" tabindex="-1" role="dialog" aria-labelledby="todo-label" aria-hidden="true">
-  
-</div>
+

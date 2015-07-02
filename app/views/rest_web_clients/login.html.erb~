@@ -23,8 +23,8 @@
       <%= f.label :password %><br>
       <%= f.text_field :password %>
     </div>
-
-    <%= f.submit :class => "btn btn-success btn-lg" %>
+	<br>
+    <%= f.submit 'Login' :class => "btn btn-success btn-lg" %>
 <% end %>
 
 <%= @privkey_user %>
