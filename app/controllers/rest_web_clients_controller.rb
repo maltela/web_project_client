@@ -46,22 +46,16 @@ class RestWebClientsController < ApplicationController
   def create
     @rest_web_client = RestWebClient.new(rest_web_client_params)
 
-    # View auslesen identity + passwort
 
     # Salt-Masterkey erzeugen
-    # Implementierung Unklar !!
     salt_masterkey= SecureRandom.hex(64)
     salt_masterkey=salt_masterkey.to_i(16)
-    #logger.debug(salt_masterkey.size)
     salt_masterkey=salt_masterkey.to_s
     logger.debug("Salt_Masterkey: "+salt_masterkey.to_s)
 
     # Masterkey erzeugen
 
     masterkey = PBKDF2.new(:password=>@rest_web_client.password, :salt=>salt_masterkey, :iterations=>10000)
-
-    #logger.debug(masterkey.bin_string)
-
 
     # RSA Keys erzeugen
 
@@ -76,59 +70,36 @@ class RestWebClientsController < ApplicationController
     #Base64
     privkey_user_enc =  (Base64.encode64(crypt))
 
-     #Daten an Server übertragen
-    response1 = RestClient.post('http://fh.thomassennekamp.de/server/user',
+    #Daten an Server übertragen
+    response = RestClient.post('http://fh.thomassennekamp.de/server/user',
                             {
                                 :identity          => @rest_web_client.username,
                                 :privkey_user_enc  => privkey_user_enc,
                                 :pubkey_user       => pubkey_user,
                                 :salt_masterkey    => salt_masterkey
                              }.to_json, :content_type => :json, :accept => :json
-                             )
+                             ){|response, request, result| response }
 
-    #response1 = HTTParty.post("http://fh.thomassennekamp.de/server/user", :query => { :identity => "alan+thinkvitamin@ee.com",:salt_masterkey => 'test',:privkey_user_enc => 'test',:pubkey_user =>'2345' })
+    if(response.to_s == '"User exists!"')
+      then
+        redirect_to action: "index",  alert: "User bereits registriert !"
+      else
+        logger.debug("Request_Create:"+response.to_s)
+        result = JSON.parse response
+        username = result['identity']
 
-    logger.debug("JSON:"+response1.to_s)
-    result1 = JSON.parse response1
-
-    logger.debug("Gruppe2: " + result1.to_s)
-
-
-
-    response2 = RestClient.post('http://webengproject.herokuapp.com' ,
-                               {
-                                   :identity          => @rest_web_client.username,
-                                   :privkey_user_enc  => privkey_user_enc,
-                                   :pubkey_user       => pubkey_user,
-                                   :salt_masterkey    => salt_masterkey
-                               }.to_json, :content_type => :json, :accept => :json
-                              )
-
-    result2 = JSON.parse response2
-
-    logger.debug("MAJOM"+result2.to_s + " CODE : " + result2["status_code"].to_s)
-
-    status=result2['status_code']
-    if(status==110)
-    then
-
-
-
-      #redirect_to action: "sendMessage",  alert: "ok "
-      redirect_to action: "index",  alert: "ok "
-    else
-
-      redirect_to action: "index",  alert: "User nicht registriert !"
+        if(username!=nil)
+        then
+          redirect_to action: "index",  alert: "ok "
+        else
+          redirect_to action: "index",  alert: "User nicht registriert !"
+        end
     end
-
   end
 
 
   def login
     @rest_web_client = RestWebClient.new
-
-
-
   end
 
 
@@ -136,41 +107,35 @@ class RestWebClientsController < ApplicationController
     @rest_web_client = RestWebClient.new(rest_web_client_params)
     username=@rest_web_client.username
     password=@rest_web_client.password
-    logger.debug("log:"+rest_web_client_params.to_s)
-    url ='http://webengproject.herokuapp.com/'+username
-    url2='http://fh.thomassennekamp.de/server/User'
+
 
     # Zugangsdaten vom Dienstleister abfragen
-    request = RestClient.put('http://fh.thomassennekamp.de/server/User' , {
-                        :identity          => @rest_web_client.username,
-                    }.to_json, :content_type => :json, :accept => :json
-    )
+
+    url='http://fh.thomassennekamp.de/server/User'
+    request = RestClient.put(url, {:identity => @rest_web_client.username }.to_json, :content_type => :json, :accept => :json )
     response = JSON.parse request
-    logger.debug("Login:"+response.to_s)
-    salt_masterkey=response['salt_masterkey']
-    privkey_user_enc=response['privkey_user_enc']
-    pubkey_user=response['pubkey_user']
-    identity=response['identity']
+    logger.debug("Request_Login:"+response.to_s)
 
-    #Authorizierung prüfen
+    #Daten-Bereitstellung
+    salt_masterkey    =response['salt_masterkey']
+    privkey_user_enc  =response['privkey_user_enc']
+    pubkey_user       =response['pubkey_user']
+    identity          =response['identity']
 
-    String password = @rest_web_client.password
-
+    # Entschlüssung Privkey_enc
     masterkeyLogin = PBKDF2.new(:password=>password, :salt=>salt_masterkey, :iterations=>10000)
-
     cipher = OpenSSL::Cipher.new('AES-128-ECB')
     cipher.decrypt()
     cipher.key = masterkeyLogin.bin_string
     privkey_user = Base64.decode64(privkey_user_enc)
-
+    session[:privkey_user] = privkey_user
 
 
     if(identity!=nil)
      then
       redirect_to action: "afterlogin",  alert: "ok - UserDaten anzeigen ", :parm_username => username, :parm_password => password
     else
-
-    redirect_to action: "login",  alert: "Error User fehler "
+      redirect_to action: "login",  alert: "Error User fehler "
     end
   end
 
@@ -179,7 +144,7 @@ class RestWebClientsController < ApplicationController
 
     @rest_web_client = RestWebClient.new(rest_web_client_params)
 
-    #logger.debug("SendMessage:"+@rest_web_clients.to_s)
+    logger.debug("SendMessage:"+session[:privkey_user].to_s)
 
     ## Empfänger auswählen
 
