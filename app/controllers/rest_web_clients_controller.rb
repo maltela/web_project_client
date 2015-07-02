@@ -361,7 +361,9 @@ class RestWebClientsController < ApplicationController
   def showUser
 
     url = 'http://fh.thomassennekamp.de/server/AllUsers'
-    response = JSON.parse(RestClient.get url)
+    request = RestClient.put(url, {:identity => '' }.to_json, :content_type => :json, :accept => :json )
+    response = JSON.parse request
+
     @output=(response['users'])
 
   end
