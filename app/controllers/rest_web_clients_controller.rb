@@ -128,6 +128,9 @@ class RestWebClientsController < ApplicationController
     cipher.decrypt()
     cipher.key = masterkeyLogin.bin_string
     $privkey_user = Base64.decode64(privkey_user_enc)
+
+
+
     
 
     if(identity!=nil)
