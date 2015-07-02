@@ -1,7 +1,6 @@
 
 
 <%= render 'form' %>
-<div class="btn btn-lg">
+
 <%= link_to 'Show', @rest_web_client %> |
 <%= link_to 'Back', rest_web_clients_path %>
-</div>
