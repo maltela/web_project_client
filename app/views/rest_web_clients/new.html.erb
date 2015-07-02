@@ -1,4 +1,7 @@
 
+<div class="container">
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3 panel panel-default">
 <%= form_for @rest_web_client, url: {action: "create"} do |f| %>
     <% if @rest_web_client.errors.any? %>
         <div id="error_explanation">
@@ -20,9 +23,9 @@
       <%= f.label :password %><br>
       <%= f.text_field :password %>
     </div>
-    <div class="actions">
+    <button type="submit" class="btn btn-success btn-lg">
       <%= f.submit %>
-    </div>
+    </button>
 <% end %>
 
 
