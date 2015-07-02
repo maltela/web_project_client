@@ -189,7 +189,7 @@ class RestWebClientsController < ApplicationController
     @messages = response['messages']
     #array.each_with_index {|val, index| puts "#{val} => #{index}" }
 
-    recipient         =response['recipient']
+    recipient =messages[:recipient]
     if(recipient==username)
       then
       cipher            =response['cipher']
