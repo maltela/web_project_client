@@ -34,9 +34,8 @@
             <%= f.label :receiver %><br>
             <%= f.text_field :receiver %>
           </div>
-          <button type="submit" class="btn btn-success btn-lg">
-            <%= f.submit %>
-          </button>
+	<br>
+    <%= f.submit :class => "btn btn-success btn-lg" %>
       <% end %>
     </td>
     <td><%= form_for @rest_web_client, url: {action: "receiveAction"} do |f| %>
@@ -57,9 +56,8 @@
             <%= f.text_field :username %>
           </div>
           </div>
-          <button type="submit" class="btn btn-success btn-lg">
-            <%= f.submit %>
-          </button>
+	<br>
+    <%= f.submit :class => "btn btn-success btn-lg" %>
       <% end %>
       </td>
   </tr>

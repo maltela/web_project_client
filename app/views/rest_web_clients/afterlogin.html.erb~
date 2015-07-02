@@ -57,9 +57,8 @@
             <%= f.text_field :username %>
           </div>
           </div>
-          <div class="actions">
-            <%= f.submit %>
-          </div>
+	<br>
+    <%= f.submit :class => "btn btn-success btn-lg" %>
       <% end %>
       </td>
   </tr>

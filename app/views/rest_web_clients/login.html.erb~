@@ -24,9 +24,7 @@
       <%= f.text_field :password %>
     </div>
 
-    <div class="actions">
-      <%= f.submit %>
-    </div>
+    <%= f.submit :class => "btn btn-success btn-lg" %>
 <% end %>
 
 <%= @privkey_user %>
