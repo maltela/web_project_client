@@ -29,9 +29,8 @@
     <div class="field">
      Receiver-Box
     </div>
-    <button type="submit" class="btn btn-success btn-lg">
-      <%= f.submit %>
-    </button>
+	<br>
+    <%= f.submit 'Nachricht senden'  :class => "btn btn-success btn-lg" %>
 
 
 <% end %>
