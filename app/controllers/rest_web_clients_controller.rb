@@ -62,6 +62,7 @@ class RestWebClientsController < ApplicationController
     rsakeys = OpenSSL::PKey::RSA.new(2048)
     privkey_user = rsakeys.to_pem
     pubkey_user  = rsakeys.public_key.to_pem
+    logger.debug("pubkeylength:"+pubkey_user.to_s.length.to_s)
     # privkey verschlüsseln
     aes = OpenSSL::Cipher::AES.new(128, :ECB)
     aes.encrypt
@@ -251,8 +252,8 @@ class RestWebClientsController < ApplicationController
 
     # Pubkey des Empfängers abrufen
     #response = RestClient.get 'http://fh.thomassennekamp.de/server/User', {:params => {:identity => 'thomas07'}}
-    #url = 'http://fh.thomassennekamp.de/server/PubKey'
-    url='http://fh.thomassennekamp.de/server/User'
+    url = 'http://fh.thomassennekamp.de/server/PubKey'
+    #url='http://fh.thomassennekamp.de/server/User'
 
     request = RestClient.put(url, {:identity => @rest_web_client.receiver }.to_json, :content_type => :json, :accept => :json )
     response = JSON.parse request
@@ -327,7 +328,7 @@ class RestWebClientsController < ApplicationController
 
     logger.debug(response.code.to_s)
 
-    redirect_to action: "index",  alert: "Nachricht verschickt"
+    redirect_to action: "afterlogin",  alert: "Nachricht verschickt"
   end
   # PATCH/PUT /rest_web_clients/1
   # PATCH/PUT /rest_web_clients/1.json
