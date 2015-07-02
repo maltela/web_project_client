@@ -128,7 +128,7 @@ class RestWebClientsController < ApplicationController
     cipher.decrypt()
     cipher.key = masterkeyLogin.bin_string
     $privkey_user = Base64.decode64(privkey_user_enc)
-
+    
 
     if(identity!=nil)
      then
@@ -205,63 +205,58 @@ class RestWebClientsController < ApplicationController
     logger.debug("User: "+identity+",Password: "+password+",Message: "+message+",Empfänger: "+receiver)
 
 
-    # Überflüssig bereits bei Login erfolgt
     # Erhalte den Sender PubKey vom Server
 
-    #url = 'http://fh.thomassennekamp.de/server/PubKey'
-    #response = JSON.parse(RestClient.get url, {:params => {:identity => identity}.to_json, :content_type => :json, :accept => :json})
+    url = 'http://fh.thomassennekamp.de/server/PubKey'
+    response = JSON.parse(RestClient.get url, {:params => {:identity => identity}.to_json, :content_type => :json, :accept => :json})
 
-    #request = RestClient.put(url, {:identity => @rest_web_client.username }.to_json, :content_type => :json, :accept => :json )
-    #statuscode = response["pubkey"].to_s
+    statuscode = response["status_code"].to_i
 
-    #if statuscode>399
+    if statuscode>399
 
-     # redirect_to action: "sendMessage",  alert: "Error User fehler "
-    #end
+      redirect_to action: "sendMessage",  alert: "Error User fehler "
+    end
 
 
     # Pubkey User auslesen
-    #pubkey_user       = response['pubkey_user'].to_s
-    #salt_masterkey    = response['salt_masterkey'].to_s
-    #privkey_user_enc  = response['privkey_user_enc'].to_s
+    pubkey_user       = response['pubkey_user'].to_s
+    salt_masterkey    = response['salt_masterkey'].to_s
+    privkey_user_enc  = response['privkey_user_enc'].to_s
 
 
-    #logger.debug("Pubkey:"+pubkey_user+" Salt_Masterkey:"+salt_masterkey+" Privkey"+privkey_user_enc)
+    logger.debug("Pubkey:"+pubkey_user+" Salt_Masterkey:"+salt_masterkey+" Privkey"+privkey_user_enc)
 
 
-    #masterkey = PBKDF2.new do |p|
-     # p.password    = password
-      #p.salt        = salt_masterkey
-      #p.iterations  = 10000
-    #end
+    masterkey = PBKDF2.new do |p|
+      p.password    = password
+      p.salt        = salt_masterkey
+      p.iterations  = 10000
+    end
 
 
     #Entschlüsslung privkey_user_enc
 
-    #cipher = OpenSSL::Cipher.new('AES-128-ECB')
-    #cipher.decrypt()
-    #cipher.key = masterkey.bin_string
-    #privkey_user = Base64.decode64(privkey_user_enc)
-    ###########################################
+    cipher = OpenSSL::Cipher.new('AES-128-ECB')
+    cipher.decrypt()
+    cipher.key = masterkey.bin_string
+    privkey_user = Base64.decode64(privkey_user_enc)
 
-    # Alternativ $privkey_user nutzen
 
 
     # Pubkey des Empfängers abrufen
     #response = RestClient.get 'http://fh.thomassennekamp.de/server/User', {:params => {:identity => 'thomas07'}}
-    #url = 'http://fh.thomassennekamp.de/server/PubKey'
-    url = 'http://fh.thomassennekamp.de/server/User'
+    url = 'http://fh.thomassennekamp.de/server/PubKey'
+    response    = JSON.parse(RestClient.get url, {:params => {identity => receiver}})
+    statuscode  = response["status_code"].to_i
 
-    request = RestClient.put(url, {:identity => @rest_web_client.username }.to_json, :content_type => :json, :accept => :json )
-    response = JSON.parse request
-
-
-    pubkey_recipient = response["pubkey_user"].to_s
-
-    if pubkey_recipient==nil
+    if statuscode>399
 
       redirect_to action: "afterlogin",  alert: "Error User fehler "
     end
+    pubkey_recipient = response["pubkey_user"].to_s
+    statuscode        = response["status_code"].to_s
+    logger.debug("Ausgabe : "+statuscode+" Pubkey: "+pubkey_recipient)
+
 
     # Nachricht erzeugen
 
@@ -288,8 +283,7 @@ class RestWebClientsController < ApplicationController
       key_recipient_enc = rsakeys.public_encrypt(key_recipient)
     end
 
-    # Variable Wert aus Login Methode
-    privkey_user = $privkey_user
+
     # SHA 256 digitale Signature bilden
 
     data = identity+cipher.to_s+iv+key_recipient_enc
@@ -317,11 +311,13 @@ class RestWebClientsController < ApplicationController
                               :timestamp    => timestamp,
                               :pubkey_user  => pubkey_recipient,
                               :sig_service  => sig_service
-                             }.to_json, :content_type => :json, :accept => :json){|response, request, result| response }
+                             })
 
-    logger.debug("Request_Message:"+response.to_s)
+    logger.debug(response.code.to_s)
+    logger.debug(response['status_code'].to_s)
 
-    redirect_to action: "afterlogin",  alert: response
+
+    redirect_to action: "index",  alert: "Nachricht verschickt"
   end
   # PATCH/PUT /rest_web_clients/1
   # PATCH/PUT /rest_web_clients/1.json
