@@ -127,9 +127,11 @@ class RestWebClientsController < ApplicationController
     cipher = OpenSSL::Cipher.new('AES-128-ECB')
     cipher.decrypt()
     cipher.key = masterkeyLogin.bin_string
-    privkey_user = Base64.decode64(privkey_user_enc)
-    session[:privkey_user] = privkey_user
+    $privkey_user = Base64.decode64(privkey_user_enc)
 
+
+
+    
 
     if(identity!=nil)
      then
@@ -162,52 +164,40 @@ class RestWebClientsController < ApplicationController
 
 
   def receiveAction
-
-
     @rest_web_client = RestWebClient.new(rest_web_client_params)
     url = 'http://fh.thomassennekamp.de/server/Message'
     username = @rest_web_client.username
     timestamp = Time.now.to_s
-    signature = (username+timestamp)
-    logger.debug('User: '+username+', Signature: '+signature)
+    signature = (username+timestamp) #Muss noch veraendert werden
+    logger.debug('User: '+username+', Signature: '+signature+' End of Signature')
+
+    
     response = JSON.parse(RestClient.put url, {:identity => username,
-                                                 :timestamp => timestamp,
-                                                 :signature => signature}.to_json , :content_type => :json, :accept => :json
+                                               :timestamp => timestamp,
+                                               :signature => signature}.to_json , :content_type => :json, :accept => :json
     )
     logger.debug(response.to_s + response.code)
-
-   #response = RestClient.get 'http://fh.thomassennekamp.de/server/Message',
-     #               {:params => {
-    #                     :identity  => @rest_web_client.username,
-      #                   :timestamp => Time.now.to_i,
-       #                  :signature => 'hbtsthbtbsthbs3'
-        #              }
-         #       }
-
-
 
     @messages = response['messages']
     #array.each_with_index {|val, index| puts "#{val} => #{index}" }
 
-    recipient =messages[:recipient]
+    recipient = messages[:recipient]
     if(recipient==username)
-      then
+    then
       cipher            =response['cipher']
       iv                =response['iv']
       key_recipient_enc =response['key_recipient_enc']
       #key_recipient entschluesseln
 
       #cipher entschluesseln
+
     else
       redirect_to action: 'afterlogin', alert: 'Falscher Empfaenger'
     end
 
 
 
-  end
-
-
-  def sendMessageAction
+    def sendMessageAction
 
     @rest_web_client = RestWebClient.new(rest_web_client_params)
     logger.debug("SendMessage_Action:"+@rest_web_clients.to_s)
@@ -223,7 +213,7 @@ class RestWebClientsController < ApplicationController
     # Erhalte den Sender PubKey vom Server
 
     url = 'http://fh.thomassennekamp.de/server/PubKey'
-    response = JSON.parse(RestClient.put url, {:identity => identity}.to_json, :content_type => :json, :accept => :json)
+    response = JSON.parse(RestClient.get url, {:params => {:identity => identity}.to_json, :content_type => :json, :accept => :json})
 
     statuscode = response["status_code"].to_i
 
@@ -317,7 +307,7 @@ class RestWebClientsController < ApplicationController
     # Nachricht verschicken
 
     response=RestClient.post('http://fh.thomassennekamp.de/server/Message',
-                             {:innerMessage  => {:sender              => identity,
+                             {:inner_envelope  => {:sender              => identity,
                                                    :cipher                => Base64.encode64(cipher.to_s),
                                                    :iv                    => Base64.encode64(iv),
                                                    :key_recipient_enc     => Base64.encode64(key_recipient_enc),
@@ -326,7 +316,7 @@ class RestWebClientsController < ApplicationController
                               :timestamp    => timestamp,
                               :pubkey_user  => pubkey_recipient,
                               :sig_service  => sig_service
-                             }.to_json)
+                             })
 
     logger.debug(response.code.to_s)
     logger.debug(response['status_code'].to_s)
