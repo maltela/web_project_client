@@ -164,38 +164,40 @@ class RestWebClientsController < ApplicationController
 
 
   def receiveAction
-
-
     @rest_web_client = RestWebClient.new(rest_web_client_params)
     url = 'http://fh.thomassennekamp.de/server/Message'
-    signature = 'MmOZ2q9p78USUad70\/ToamC4JBbe+uHnlHg1TCpMRQKhGwkLICgOwCTQWMQswC8K6s\/TzBpfrC6JAq9kLtGh5iTYB62zyGIDSPkadCuV7hqAUR05GF6AXnDKAer5Ex+OShKhqye+qpRUq4rxDEMCnnHpulCorEru6+NsKYts+tIMTXoQDRtyICf4uX5+V\/qkJ1kazRwJzHSUucCkWLzbIzyXxmwNA1kqiwDv\/\/dPZ+fkHYY95ts0vIlWYnvFkM5A3io5m9U5fThD+RuwoRagQu9q6XdchPsu8E3sCYl33foriKyuhH3wA+5GVaY6u5Y5JXGO6gRHAIPDL13KcAJjhZj3PujT2gdqojIzfUMgcsEwnGhV0xcT\/j95V23deSST2wBK5SazdZBtO9TxGRHBHMyhXpmlYUjBEMfxvWpIU9si865msYPmrKsjr+6Kzr9IihnW7hxPt6LkCOvHkmLmJZTWKpWvVVU383t8CA+j7gcE6jYAOYnEarZm3q95Bi3s51TGoNzJhgdvYcBdMLFVUdcbPqdxsB1ZcElwitCxqdZtlxisMv7OW+Yw58QRBa1sMU7WVD0u59RUIshr5Zm\/Zt1srjePyYk\/JhHeg3C3CHUzFVScAXAnq97RLGSYKnYNH\/X4rihQy4jEIHmcijlSf31xzMg43nM3PMyC1FiRaIg='
-    logger.debug('User: '+@rest_web_client.username.to_s())
-    response = JSON.parse(RestClient.get url, {:params => {:identity => @rest_web_client.username,
-                                                 :timestamp => Time.now.to_i,
-                                                 :signature => signature}.to_json} #, :content_type => :json, :accept => :json
+    username = @rest_web_client.username
+    timestamp = Time.now.to_s
+    signature = (username+timestamp) #Muss noch veraendert werden
+    logger.debug('User: '+username+', Signature: '+signature+' End of Signature')
+
+    
+    response = JSON.parse(RestClient.put url, {:identity => username,
+                                               :timestamp => timestamp,
+                                               :signature => signature}.to_json , :content_type => :json, :accept => :json
     )
     logger.debug(response.to_s + response.code)
 
-   #response = RestClient.get 'http://fh.thomassennekamp.de/server/Message',
-     #               {:params => {
-    #                     :identity  => @rest_web_client.username,
-      #                   :timestamp => Time.now.to_i,
-       #                  :signature => 'hbtsthbtbsthbs3'
-        #              }
-         #       }
+    @messages = response['messages']
+    #array.each_with_index {|val, index| puts "#{val} => #{index}" }
+
+    recipient = messages[:recipient]
+    if(recipient==username)
+    then
+      cipher            =response['cipher']
+      iv                =response['iv']
+      key_recipient_enc =response['key_recipient_enc']
+      #key_recipient entschluesseln
+
+      #cipher entschluesseln
+
+    else
+      redirect_to action: 'afterlogin', alert: 'Falscher Empfaenger'
+    end
 
 
-    @recipient         =response['recipient']
-    @cipher            =response['cipher']
-    @iv                =response['iv']
-    @key_recipient_enc =response['key_recipient_enc']
-    logger.debug('')
 
-
-  end
-
-
-  def sendMessageAction
+    def sendMessageAction
 
     @rest_web_client = RestWebClient.new(rest_web_client_params)
     logger.debug("SendMessage_Action:"+@rest_web_clients.to_s)
