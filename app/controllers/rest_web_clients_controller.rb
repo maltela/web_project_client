@@ -167,38 +167,61 @@ class RestWebClientsController < ApplicationController
   def receiveAction
     @rest_web_client = RestWebClient.new(rest_web_client_params)
     url = 'http://fh.thomassennekamp.de/server/Message'
-    username = @rest_web_client.username
-    timestamp = Time.now.to_s
-    signature = (username+timestamp) #Muss noch veraendert werden
-    logger.debug('User: '+username+', Signature: '+signature+' End of Signature')
+    username = @rest_web_client.username.to_s
+    timestamp = Time.now.to_i
+    hash_user = username.to_s
+    hash_timestamp = timestamp.to_s
+    sha256 = OpenSSL::Digest::SHA256.new
+    signature_data = sha256.hexdigest(hash_user)+sha256.hexdigest(hash_timestamp)
+    signature = Base64.encode64(signature_data)
 
-    
+    logger.debug('User: '+username+', Start of Signature: '+signature+' End of Signature')
+
+
     response = JSON.parse(RestClient.put url, {:identity => username,
-                                               :timestamp => timestamp,
+                                               :timestamp => hash_timestamp,
                                                :signature => signature}.to_json , :content_type => :json, :accept => :json
     )
     logger.debug(response.to_s + response.code)
 
-    @messages = response['messages']
-    #array.each_with_index {|val, index| puts "#{val} => #{index}" }
 
-    recipient = messages[:recipient]
-    if(recipient==username)
-    then
-      cipher            =response['cipher']
-      iv                =response['iv']
-      key_recipient_enc =response['key_recipient_enc']
-      #key_recipient entschluesseln
 
-      #cipher entschluesseln
+    sig_message = params[:recipient].to_s + params[:cipher].to_s + params[:iv].to_s + params[:key_recipient_enc].to_s
+    digest = OpenSSL::Digest::SHA256.new
 
-    else
-      redirect_to action: 'afterlogin', alert: 'Falscher Empfaenger'
+    url = 'http://fh.thomassennekamp.de/server/PubKey'
+    request = RestClient.put(url, {:identity => recipient }.to_json, :content_type => :json, :accept => :json )
+    response = JSON.parse request
+    pubkey_user = response['pubkey_user']
+
+    key = OpenSSL::PKey::RSA.new(pubkey_user)
+    if (key.verify digest, params[:sig_recipient], sig_message)
+      then
+      @messages = response['messages']
+      #array.each_with_index {|val, index| puts "#{val} => #{index}" }
+
+      recipient = messages[:recipient]
+      if(recipient==username)
+      then
+        cipher            = Base64.decode64(response['cipher'])
+        iv                = Base64.decode64(response['iv'])
+        key_recipient_enc = Base64.decode64(response['key_recipient_enc'])
+
+        #key_recipient entschluesseln
+
+        #Ist das so komplett?
+        #Es fehlt noch eine Ausgabe?
+
+        #cipher entschluesseln
+
+      else
+        redirect_to action: 'afterlogin', alert: 'Falscher Empfaenger'
+      end
     end
 
-    end
+  end
 
-    def sendMessageAction
+  def sendMessageAction
 
     @rest_web_client = RestWebClient.new(rest_web_client_params)
     logger.debug("SendMessage_Action:"+@rest_web_clients.to_s)
